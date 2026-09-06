@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import spacecraftUrl from '../assets/spacecraft.svg';
-import ufoUrl from '../assets/ufo.svg';
+import { useEffect, useRef, useState } from "react";
+import spacecraftUrl from "../assets/spacecraft.svg";
+import ufoUrl from "../assets/ufo.svg";
 
 interface GameProps {
   onExit: () => void;
@@ -33,10 +33,17 @@ const CANVAS_W = 800;
 const CANVAS_H = 600;
 
 // Fire keys: Space, Ctrl, Enter (+ left mouse button handled separately)
-const FIRE_KEYS = new Set(['Space', 'Control', 'ControlLeft', 'ControlRight', 'Enter', 'NumpadEnter']);
+const FIRE_KEYS = new Set([
+  "Space",
+  "Control",
+  "ControlLeft",
+  "ControlRight",
+  "Enter",
+  "NumpadEnter",
+]);
 // Move keys: up/down arrows (+ W/S as a bonus)
-const UP_KEYS = new Set(['ArrowUp', 'KeyW']);
-const DOWN_KEYS = new Set(['ArrowDown', 'KeyS']);
+const UP_KEYS = new Set(["ArrowUp", "KeyW"]);
+const DOWN_KEYS = new Set(["ArrowDown", "KeyS"]);
 
 export default function Game({ onExit }: GameProps) {
   const [gameOver, setGameOver] = useState(false);
@@ -46,12 +53,12 @@ export default function Game({ onExit }: GameProps) {
     if (gameOver) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     // Load background image
     const bgImg = new Image();
-    bgImg.src = '/night-sky.webp';
+    bgImg.src = "/night-sky.webp";
 
     // Load sprite images
     const shipImg = new Image();
@@ -62,7 +69,13 @@ export default function Game({ onExit }: GameProps) {
     const keys = new Set<string>();
     let mouseDown = false;
 
-    const player: Player = { x: 60, y: CANVAS_H / 2 - 20, w: 40, h: 40, speed: 300 };
+    const player: Player = {
+      x: 60,
+      y: CANVAS_H / 2 - 20,
+      w: 40,
+      h: 40,
+      speed: 300,
+    };
     let bullets: Bullet[] = [];
     let enemies: Enemy[] = [];
     let score = 0;
@@ -73,9 +86,10 @@ export default function Game({ onExit }: GameProps) {
     let rafId = 0;
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (FIRE_KEYS.has(e.code) || UP_KEYS.has(e.code) || DOWN_KEYS.has(e.code)) e.preventDefault();
+      if (FIRE_KEYS.has(e.code) || UP_KEYS.has(e.code) || DOWN_KEYS.has(e.code))
+        e.preventDefault();
       keys.add(e.code);
-      if (e.code === 'Escape') onExit();
+      if (e.code === "Escape") onExit();
     };
     const onKeyUp = (e: KeyboardEvent) => keys.delete(e.code);
     const onMouseDown = (e: MouseEvent) => {
@@ -115,21 +129,25 @@ export default function Game({ onExit }: GameProps) {
       if (e.touches.length === 0) mouseDown = false;
     };
 
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    canvas.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mouseup', onMouseUp);
-    canvas.addEventListener('mousemove', onMouseMove);
-    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
-    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-    canvas.addEventListener('touchend', onTouchEnd, { passive: false });
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    canvas.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mouseup", onMouseUp);
+    canvas.addEventListener("mousemove", onMouseMove);
+    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    canvas.addEventListener("touchmove", onTouchMove, { passive: false });
+    canvas.addEventListener("touchend", onTouchEnd, { passive: false });
 
     const tryFire = (dt: number) => {
       fireCooldown -= dt;
-      const wantFire =
-        mouseDown || [...FIRE_KEYS].some((k) => keys.has(k));
+      const wantFire = mouseDown || [...FIRE_KEYS].some((k) => keys.has(k));
       if (wantFire && fireCooldown <= 0) {
-        bullets.push({ x: player.x + player.w, y: player.y + player.h / 2, vx: 500, vy: 0 });
+        bullets.push({
+          x: player.x + player.w,
+          y: player.y + player.h / 2,
+          vx: 500,
+          vy: 0,
+        });
         fireCooldown = 0.2;
       }
     };
@@ -146,7 +164,10 @@ export default function Game({ onExit }: GameProps) {
       let dir = 0;
       if ([...UP_KEYS].some((k) => keys.has(k))) dir -= 1;
       if ([...DOWN_KEYS].some((k) => keys.has(k))) dir += 1;
-      player.y = Math.max(0, Math.min(CANVAS_H - player.h, player.y + dir * player.speed * dt));
+      player.y = Math.max(
+        0,
+        Math.min(CANVAS_H - player.h, player.y + dir * player.speed * dt),
+      );
 
       tryFire(dt);
 
@@ -169,7 +190,12 @@ export default function Game({ onExit }: GameProps) {
         en.x += en.vx * dt;
         // bullet hits
         for (const b of bullets) {
-          if (b.x > en.x && b.x < en.x + en.w && b.y > en.y && b.y < en.y + en.h) {
+          if (
+            b.x > en.x &&
+            b.x < en.x + en.w &&
+            b.y > en.y &&
+            b.y < en.y + en.h
+          ) {
             b.x = CANVAS_W + 999; // consume bullet
             score += 10;
             return false;
@@ -192,7 +218,7 @@ export default function Game({ onExit }: GameProps) {
 
     const draw = () => {
       // background with stars
-      ctx.fillStyle = '#000';
+      ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
       // background image
       if (bgImg.complete && bgImg.naturalWidth > 0) {
@@ -200,23 +226,29 @@ export default function Game({ onExit }: GameProps) {
       }
       // player ship
       if (shipImg.complete && shipImg.naturalWidth > 0) {
-        ctx.drawImage(shipImg, player.x - 10, player.y - 10, player.w + 20, player.h + 20);
+        ctx.drawImage(
+          shipImg,
+          player.x - 10,
+          player.y - 10,
+          player.w + 20,
+          player.h + 20,
+        );
       } else {
-        ctx.fillStyle = '#0f0';
+        ctx.fillStyle = "#0f0";
         ctx.fillRect(player.x, player.y, player.w, player.h);
       }
-      ctx.fillStyle = '#ff0';
+      ctx.fillStyle = "#ff0";
       for (const b of bullets) ctx.fillRect(b.x, b.y, 10, 3);
       for (const en of enemies) {
         if (ufoImg.complete && ufoImg.naturalWidth > 0) {
           ctx.drawImage(ufoImg, en.x - 5, en.y - 10, en.w + 10, en.h + 20);
         } else {
-          ctx.fillStyle = '#f33';
+          ctx.fillStyle = "#f33";
           ctx.fillRect(en.x, en.y, en.w, en.h);
         }
       }
-      ctx.fillStyle = '#fff';
-      ctx.font = '16px monospace';
+      ctx.fillStyle = "#fff";
+      ctx.font = "16px monospace";
       ctx.fillText(`Score: ${score}`, 12, 24);
     };
 
@@ -233,30 +265,35 @@ export default function Game({ onExit }: GameProps) {
     return () => {
       running = false;
       cancelAnimationFrame(rafId);
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-      canvas.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('mouseup', onMouseUp);
-      canvas.removeEventListener('mousemove', onMouseMove);
-      canvas.removeEventListener('touchstart', onTouchStart);
-      canvas.removeEventListener('touchmove', onTouchMove);
-      canvas.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+      canvas.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mouseup", onMouseUp);
+      canvas.removeEventListener("mousemove", onMouseMove);
+      canvas.removeEventListener("touchstart", onTouchStart);
+      canvas.removeEventListener("touchmove", onTouchMove);
+      canvas.removeEventListener("touchend", onTouchEnd);
     };
   }, [gameOver, onExit]);
 
   return (
-    <div className="relative flex h-full items-center justify-center overflow-hidden bg-black">
+    <div className="relative flex justify-center items-center bg-black h-full overflow-hidden">
       <canvas
         ref={canvasRef}
         width={CANVAS_W}
         height={CANVAS_H}
-        className="max-h-full max-w-full touch-none cursor-crosshair border border-neutral-700"
+        className="border border-neutral-700 max-w-full max-h-full touch-none cursor-crosshair"
       />
       {gameOver && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-black/75">
-          <h2 className="font-mono text-6xl font-bold tracking-widest text-red-500">GAME OVER</h2>
+        <div className="absolute inset-0 flex flex-col justify-center items-center gap-6 bg-black/75">
+          <h2 className="font-mono font-bold text-red-500 text-6xl text-center tracking-widest">
+            GAME OVER
+          </h2>
           <div className="flex flex-col items-center gap-3">
-            <button onClick={() => setGameOver(false)} className={restartButtonClass}>
+            <button
+              onClick={() => setGameOver(false)}
+              className={restartButtonClass}
+            >
               Start Again
             </button>
             <button onClick={onExit} className={restartButtonClass}>
@@ -270,4 +307,4 @@ export default function Game({ onExit }: GameProps) {
 }
 
 const restartButtonClass =
-  'w-56 cursor-pointer rounded border-2 border-green-500 bg-zinc-900 px-0 py-3 text-lg text-green-500 transition-colors hover:bg-green-500 hover:text-black';
+  "w-56 cursor-pointer rounded border-2 border-green-500 bg-zinc-900 px-0 py-3 text-lg text-green-500 transition-colors hover:bg-green-500 hover:text-black";
